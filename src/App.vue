@@ -22,7 +22,7 @@
             >
                 <template v-slot:activator="{on}">
                     <v-btn v-on="on" icon>
-                        <v-icon>mdi-settings</v-icon>
+                        <v-icon>mdi-cog</v-icon>
                     </v-btn>
                 </template>
             </controls>
