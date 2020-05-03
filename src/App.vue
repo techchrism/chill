@@ -1,12 +1,11 @@
 <template>
     <v-app>
-        <!-- collapse style="max-width: 64px" -->
         <v-app-bar app color="primary" >
             <v-toolbar-title class="headline text-uppercase">
                 <span class="font-weight-light">Chill</span>
             </v-toolbar-title>
             <v-spacer/>
-            <controls :sounds="sounds"
+            <controls :sounds="soundMeta"
                       :source-name="selectedAnimation.source"
                       :progress="songProgress"
                       :song-name="selectedSong.name"
@@ -41,14 +40,6 @@
                    onload="this.play()"
                    ref="music"
             ></audio>
-            <audio v-for="sound in sounds"
-                   :key="sound.name"
-                   :data-id="sound.name"
-                   :src="'sound/' + sound.file"
-                   ref="sound"
-                   loop
-            >
-            </audio>
 
             <v-snackbar :value="autoplayDisabled" :timeout="0">
                 AutoPlay is disabled. Click anywhere to enable.
@@ -58,22 +49,24 @@
 </template>
 
 <script>
-    import HelloWorld from './components/HelloWorld';
     import Controls from './components/Controls';
     import Animation from './components/Animation';
     import fscreen from 'fscreen';
     import {mapState} from 'vuex';
     import {sounds, animations, music} from './files';
+    import {Howl, Howler} from 'howler';
 
     export default {
         name: 'App',
-        components: {Animation, Controls, HelloWorld},
+        components: {Animation, Controls},
         data()
         {
             return {
-                sounds,
+                soundMeta: sounds,
                 animations,
                 music,
+                soundsHowler: {},
+                musicPlaying: true,
                 selectedAnimation: {},
                 selectedSong: {},
                 songProgress: 0,
@@ -107,12 +100,15 @@
         methods: {
             setVolume(name, volume)
             {
-                for(let sound of this.sounds)
+                let sound = this.soundsHowler[name];
+                sound.volume(volume / 100);
+                if(volume !== 0 && !sound.playing())
                 {
-                    if(sound.name === name)
-                    {
-                        sound.element.volume = (volume / 100);
-                    }
+                    sound.play();
+                }
+                else if(volume === 0 && sound.playing())
+                {
+                    sound.pause();
                 }
             },
             pickRandomAnimation()
@@ -197,9 +193,17 @@
                 this.autoplayDisabled = false;
                 document.removeEventListener('click', this.handleAutoplayClick);
                 this.$refs['music'].play();
-                for(let sound of this.sounds)
+                for(let sound in this.soundsHowler)
                 {
-                    sound.element.play();
+                    if(!this.soundsHowler.hasOwnProperty(sound))
+                    {
+                        continue;
+                    }
+
+                    if(this.soundsHowler[sound].volume > 0.0)
+                    {
+                        this.soundsHowler[sound].play();
+                    }
                 }
             },
             toggleSong()
@@ -261,27 +265,33 @@
         {
             this.pickRandomAnimation();
             this.pickRandomSong();
-            for(let el of this.$refs['sound'])
+
+            for(let sound of sounds)
             {
-                const id = el.dataset.id;
-                for(let sound of this.sounds)
-                {
-                    if(sound.name === id)
-                    {
-                        sound.element = el;
-                        el.volume = 0;
-                        break;
-                    }
-                }
+                this.soundsHowler[sound.name] = new Howl({
+                    src: 'sound/' + sound.file,
+                    loop: true,
+                    autoplay: false,
+                    html5: true,
+                    volume: this.volumes[sound.name] || 0.0
+                });
             }
 
             setTimeout(() =>
             {
                 this.$refs['music'].play().then(() =>
                 {
-                    for(let sound of this.sounds)
+                    for(let sound in this.soundsHowler)
                     {
-                        sound.element.play();
+                        if(!this.soundsHowler.hasOwnProperty(sound))
+                        {
+                            continue;
+                        }
+
+                        if(this.soundsHowler[sound].volume > 0)
+                        {
+                            this.soundsHowler[sound].play();
+                        }
                     }
                 }).catch(() =>
                 {
