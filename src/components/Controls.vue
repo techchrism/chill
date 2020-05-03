@@ -24,7 +24,7 @@
                         <v-icon>mdi-rewind</v-icon>
                     </v-btn>
                     <v-btn icon @click="$emit('toggleSong')" :class="{'mx-5': $vuetify.breakpoint.mdAndUp}">
-                        <v-icon v-if="$store.state.musicPlaying">mdi-pause</v-icon>
+                        <v-icon v-if="musicPlaying">mdi-pause</v-icon>
                         <v-icon v-else>mdi-play</v-icon>
                     </v-btn>
                     <v-btn icon @click="$emit('nextSong')" class="ml-0" :class="{'mr-3': $vuetify.breakpoint.mdAndUp}">
@@ -69,7 +69,7 @@
                                 <v-col cols="4" sm="3">
                                     <v-slider :hint="sound.name"
                                               persistent-hint
-                                              :value="$store.state.volumes[sound.name] || 0"
+                                              :value="volumes[sound.name] || 0"
                                               @input="setVolume(sound.name, $event)"
                                     />
                                 </v-col>
@@ -83,8 +83,6 @@
 </template>
 
 <script>
-    const throttle = require('lodash.throttle');
-
     export default {
         name: 'Controls',
         props: {
@@ -92,17 +90,14 @@
             songName: String,
             artist: String,
             sounds: Array,
-            progress: Number
+            progress: Number,
+            volumes: Object,
+            musicPlaying: Boolean
         },
         methods: {
-            commit: throttle(function(name, value)
-            {
-                this.$store.commit('setVolume', {name, value});
-            }, 250),
             setVolume(name, value)
             {
                 this.$emit('setVolume', {name, value});
-                this.commit(name, value);
             }
         }
     };

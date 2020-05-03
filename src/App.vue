@@ -10,6 +10,8 @@
                       :progress="songProgress"
                       :song-name="selectedSong.name"
                       :artist="selectedSong.artist"
+                      :volumes="volumes"
+                      :music-playing="musicPlaying"
                       @nextGif="nextAnimation"
                       @prevGif="prevAnimation"
                       @randomGif="pickRandomAnimation"
@@ -52,9 +54,14 @@
     import Controls from './components/Controls';
     import Animation from './components/Animation';
     import fscreen from 'fscreen';
-    import {mapState} from 'vuex';
     import {sounds, animations, music} from './files';
-    import {Howl, Howler} from 'howler';
+    import {Howl} from 'howler';
+    import localforage from 'localforage';
+    const throttle = require('lodash.throttle');
+
+    localforage.config({
+        name: 'chill'
+    });
 
     export default {
         name: 'App',
@@ -66,6 +73,7 @@
                 animations,
                 music,
                 soundsHowler: {},
+                volumes: {},
                 musicPlaying: true,
                 selectedAnimation: {},
                 selectedSong: {},
@@ -82,22 +90,12 @@
             {
                 return 'music/' + this.selectedSong.file;
             },
-            ...mapState(['volumes'])
-        },
-        watch: {
-            volumes(newVolumes)
-            {
-                for(let vol in newVolumes)
-                {
-                    if(!newVolumes.hasOwnProperty(vol))
-                    {
-                        continue;
-                    }
-                    this.setVolume(vol, newVolumes[vol]);
-                }
-            }
         },
         methods: {
+            saveVolume: throttle(function()
+            {
+                localforage.setItem('volumes', this.volumes);
+            }, 1000),
             setVolume(name, volume)
             {
                 let sound = this.soundsHowler[name];
@@ -110,6 +108,8 @@
                 {
                     sound.pause();
                 }
+                this.volumes[name] = volume;
+                this.saveVolume();
             },
             pickRandomAnimation()
             {
@@ -200,7 +200,7 @@
                         continue;
                     }
 
-                    if(this.soundsHowler[sound].volume > 0.0)
+                    if(this.soundsHowler[sound].volume() > 0)
                     {
                         this.soundsHowler[sound].play();
                     }
@@ -217,7 +217,7 @@
                 {
                     mus.pause();
                 }
-                this.$store.commit('setMusicPlaying', !mus.paused);
+                this.musicPlaying = !mus.paused;
             },
             timeUpdate()
             {
@@ -266,19 +266,21 @@
             this.pickRandomAnimation();
             this.pickRandomSong();
 
-            for(let sound of sounds)
+            localforage.getItem('volumes').then((volumes) =>
             {
-                this.soundsHowler[sound.name] = new Howl({
-                    src: 'sound/' + sound.file,
-                    loop: true,
-                    autoplay: false,
-                    html5: true,
-                    volume: this.volumes[sound.name] || 0.0
-                });
-            }
+                volumes = volumes || {};
+                this.volumes = volumes;
+                for(let sound of sounds)
+                {
+                    this.soundsHowler[sound.name] = new Howl({
+                        src: 'sound/' + sound.file,
+                        loop: true,
+                        autoplay: false,
+                        html5: true,
+                        volume: (volumes[sound.name] / 100) || 0.0
+                    });
+                }
 
-            setTimeout(() =>
-            {
                 this.$refs['music'].play().then(() =>
                 {
                     for(let sound in this.soundsHowler)
@@ -288,7 +290,7 @@
                             continue;
                         }
 
-                        if(this.soundsHowler[sound].volume > 0)
+                        if(this.soundsHowler[sound].volume() > 0)
                         {
                             this.soundsHowler[sound].play();
                         }
@@ -298,8 +300,7 @@
                     this.autoplayDisabled = true;
                     document.addEventListener('click', this.handleAutoplayClick);
                 });
-            }, 15);
-
+            });
 
             document.addEventListener('keydown', this.keydown);
         }
@@ -307,7 +308,8 @@
 </script>
 
 <style>
-    html {
+    html
+    {
         overflow-y: auto !important;
     }
 
