@@ -39,7 +39,6 @@
                 <animation :source="animationSource" :animation="selectedAnimation"/>
             </div>
             <audio @ended="pickRandomSong(true)"
-                   @timeupdate="timeUpdate"
                    onload="this.play()"
                    ref="music"
             >
@@ -239,6 +238,7 @@
                 {
                     setTimeout(() =>
                     {
+                        this.$refs['music'].load();
                         this.$refs['music'].play();
                     }, 5);
                 }
@@ -256,6 +256,7 @@
                 }
                 setTimeout(() =>
                 {
+                    this.$refs['music'].load();
                     this.$refs['music'].play();
                 }, 5);
             },
@@ -272,6 +273,7 @@
                 }
                 setTimeout(() =>
                 {
+                    this.$refs['music'].load();
                     this.$refs['music'].play();
                 }, 5);
             },
@@ -423,6 +425,14 @@
 
             document.addEventListener('keydown', this.keydown);
             this.$refs['content'].addEventListener('click', this.clickHandler);
+
+            setInterval(() =>
+            {
+                requestAnimationFrame(() =>
+                {
+                    this.timeUpdate();
+                });
+            }, 250);
         }
     };
 </script>
