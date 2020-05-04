@@ -108,23 +108,39 @@
                 {
                     for(let sound of sounds)
                     {
-                        let howler = this.soundsHowler[sound.name];
                         let volume = (this.defaultVolumes[sound.name] / 100) || 0.0;
-                        howler.volume(volume);
-                        if(volume !== 0 && !howler.playing())
-                        {
-                            howler.play();
-                        }
-                        else if(volume === 0 && howler.playing())
-                        {
-                            howler.pause();
-                        }
+                        this.setVolumeFor(sound.name, volume);
                     }
                     this.$refs['music'].volume = (this.defaultVolumes['Music'] / 100) || 1.0;
                 }
             }
         },
         methods: {
+            setVolumeFor(name, volume)
+            {
+                let howler = this.soundsHowler[name];
+                howler.volume(volume);
+                if(volume !== 0 && !howler.playing())
+                {
+                    if(!(howler.state() === 'loaded'))
+                    {
+                        howler.load();
+                        howler.once('load', () =>
+                        {
+                            howler.play();
+                        });
+                    }
+                    else
+                    {
+                        howler.play();
+                    }
+                }
+                else if(volume === 0 && howler.playing())
+                {
+                    howler.pause();
+                    howler.unload();
+                }
+            },
             clickHandler(e)
             {
                 if(this.autoplayDisabled)
@@ -169,16 +185,7 @@
             {
                 if(name !== 'Music')
                 {
-                    let sound = this.soundsHowler[name];
-                    sound.volume(volume / 100);
-                    if(volume !== 0 && !sound.playing())
-                    {
-                        sound.play();
-                    }
-                    else if(volume === 0 && sound.playing())
-                    {
-                        sound.pause();
-                    }
+                    this.setVolumeFor(name, volume / 100);
                 }
                 else
                 {
@@ -367,12 +374,14 @@
 
                 for(let sound of sounds)
                 {
+                    let volume = (((useDefault ? this.defaultVolumes[sound.name] : volumes[sound.name]) / 100) || 0.0);
                     this.soundsHowler[sound.name] = new Howl({
                         src: sound.files.map((file) => 'sound/' + file),
                         loop: true,
                         autoplay: false,
+                        preload: false,
                         html5: true,
-                        volume: (((useDefault ? this.defaultVolumes[sound.name] : volumes[sound.name]) / 100) || 0.0),
+                        volume,
                         onplayerror: () =>
                         {
                             if(!this.autoplayDisabled)
@@ -383,9 +392,13 @@
                         }
                     });
 
-                    if((((useDefault ? this.defaultVolumes[sound.name] : volumes[sound.name]) / 100) || 0.0) > 0)
+                    if(volume > 0)
                     {
-                        this.soundsHowler[sound.name].play();
+                        this.soundsHowler[sound.name].load();
+                        this.soundsHowler[sound.name].once('load', () =>
+                        {
+                            this.soundsHowler[sound.name].play();
+                        });
                     }
                 }
 
