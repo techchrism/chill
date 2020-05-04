@@ -33,8 +33,8 @@
         </v-app-bar>
 
         <v-content>
-            <div ref="content" class="full-container">
-                <animation :source="animationSource"/>
+            <div ref="content" class="full-container no-select">
+                <animation :source="animationSource" :animation="selectedAnimation"/>
             </div>
             <audio :src="musicSource"
                    @ended="pickRandomSong(true)"
@@ -93,9 +93,9 @@
             },
         },
         methods: {
-            clickHandler(mouseEvent)
+            clickHandler(e)
             {
-                if(mouseEvent.clientX > (window.innerWidth / 2))
+                if(e.clientX > (window.innerWidth / 2))
                 {
                     this.nextAnimation();
                 }
@@ -103,6 +103,8 @@
                 {
                     this.prevAnimation();
                 }
+                e.preventDefault();
+                e.stopPropagation();
             },
             saveVolume: throttle(function()
             {
@@ -352,5 +354,14 @@
     {
         height: 100%;
         width: 100%;
+    }
+
+    .no-select
+    {
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
 </style>

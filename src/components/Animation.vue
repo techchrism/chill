@@ -20,6 +20,7 @@
     export default {
         name: 'Animation',
         props: {
+            animation: Object,
             source: String
         },
         data()
@@ -28,17 +29,31 @@
                 imageClass: {}
             }
         },
+        watch: {
+            animation()
+            {
+
+            }
+        },
         methods: {
             onLoad()
             {
                 this.computeSize();
 
-                const {r, g, b} = this.getAverageColor();
-                const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-                const contrast = (yiq >= 128) ? 'light' : 'dark';
-
-                this.$vuetify.theme.dark = (contrast === 'dark');
-                this.$vuetify.theme.themes[contrast].primary = rgbToHex(r, g, b);
+                if(this.animation.hasOwnProperty('color'))
+                {
+                    this.$vuetify.theme.dark = (this.animation.theme === 'dark');
+                    this.$vuetify.theme.themes[this.animation.theme].primary = this.animation.color;
+                }
+                else
+                {
+                    const {r, g, b} = this.getAverageColor();
+                    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                    const contrast = (yiq >= 128) ? 'light' : 'dark';
+                    this.$vuetify.theme.dark = (contrast === 'dark');
+                    this.$vuetify.theme.themes[contrast].primary = rgbToHex(r, g, b);
+                    console.log(this.source + ': ' + rgbToHex(r, g, b) + ' (' + contrast + ')');
+                }
             },
             getAverageColor()
             {
