@@ -179,17 +179,7 @@
 
                 for(let sound of sounds)
                 {
-                    let howler = this.soundsHowler[sound.name];
-                    let volume =  (this.volumes[sound.name] / 100) || 0.0;
-                    howler.volume(volume);
-                    if(volume !== 0 && !howler.playing())
-                    {
-                        howler.play();
-                    }
-                    else if(volume === 0 && howler.playing())
-                    {
-                        howler.pause();
-                    }
+                    this.setVolumeFor(sound.name, (this.volumes[sound.name] / 100) || 0.0)
                 }
                 this.$refs['music'].volume = (this.volumes['Music'] / 100) || 0.0;
             },
