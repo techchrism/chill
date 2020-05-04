@@ -57,6 +57,7 @@
     import {sounds, animations, music} from './files';
     import {Howl} from 'howler';
     import localforage from 'localforage';
+    require('localforage-getitems');
     const throttle = require('lodash.throttle');
 
     localforage.config({
@@ -98,15 +99,22 @@
             }, 1000),
             setVolume(name, volume)
             {
-                let sound = this.soundsHowler[name];
-                sound.volume(volume / 100);
-                if(volume !== 0 && !sound.playing())
+                if(name !== 'Music')
                 {
-                    sound.play();
+                    let sound = this.soundsHowler[name];
+                    sound.volume(volume / 100);
+                    if(volume !== 0 && !sound.playing())
+                    {
+                        sound.play();
+                    }
+                    else if(volume === 0 && sound.playing())
+                    {
+                        sound.pause();
+                    }
                 }
-                else if(volume === 0 && sound.playing())
+                else
                 {
-                    sound.pause();
+                    this.$refs['music'].volume = (volume / 100);
                 }
                 this.volumes[name] = volume;
                 this.saveVolume();
@@ -192,7 +200,10 @@
             {
                 this.autoplayDisabled = false;
                 document.removeEventListener('click', this.handleAutoplayClick);
-                this.$refs['music'].play();
+                if(this.musicPlaying)
+                {
+                    this.$refs['music'].play();
+                }
                 for(let sound in this.soundsHowler)
                 {
                     if(!this.soundsHowler.hasOwnProperty(sound))
@@ -218,6 +229,7 @@
                     mus.pause();
                 }
                 this.musicPlaying = !mus.paused;
+                localforage.setItem('musicPlaying', this.musicPlaying);
             },
             timeUpdate()
             {
@@ -266,10 +278,12 @@
             this.pickRandomAnimation();
             this.pickRandomSong();
 
-            localforage.getItem('volumes').then((volumes) =>
+            localforage.getItems(['volumes', 'musicPlaying']).then(({volumes, musicPlaying}) =>
             {
                 volumes = volumes || {};
                 this.volumes = volumes;
+                this.musicPlaying = musicPlaying;
+
                 for(let sound of sounds)
                 {
                     this.soundsHowler[sound.name] = new Howl({
@@ -277,29 +291,38 @@
                         loop: true,
                         autoplay: false,
                         html5: true,
-                        volume: (volumes[sound.name] / 100) || 0.0
+                        volume: (volumes[sound.name] / 100) || 0.0,
+                        onplayerror: () =>
+                        {
+                            if(!this.autoplayDisabled)
+                            {
+                                this.autoplayDisabled = true;
+                                document.addEventListener('click', this.handleAutoplayClick);
+                            }
+                        }
                     });
+
+                    if(((volumes[sound.name] / 100) || 0.0) > 0)
+                    {
+                        this.soundsHowler[sound.name].play();
+                    }
                 }
 
-                this.$refs['music'].play().then(() =>
+                this.$refs['music'].volume = (volumes['Music'] / 100) || 1.0;
+                if(musicPlaying)
                 {
-                    for(let sound in this.soundsHowler)
+                    this.$refs['music'].play().then(() =>
                     {
-                        if(!this.soundsHowler.hasOwnProperty(sound))
-                        {
-                            continue;
-                        }
 
-                        if(this.soundsHowler[sound].volume() > 0)
+                    }).catch(() =>
+                    {
+                        if(!this.autoplayDisabled)
                         {
-                            this.soundsHowler[sound].play();
+                            this.autoplayDisabled = true;
+                            document.addEventListener('click', this.handleAutoplayClick);
                         }
-                    }
-                }).catch(() =>
-                {
-                    this.autoplayDisabled = true;
-                    document.addEventListener('click', this.handleAutoplayClick);
-                });
+                    });
+                }
             });
 
             document.addEventListener('keydown', this.keydown);

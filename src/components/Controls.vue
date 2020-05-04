@@ -18,7 +18,16 @@
                         <v-list-item-subtitle v-if="artist">{{artist}}</v-list-item-subtitle>
                     </v-list-item-content>
 
-                    <v-spacer/>
+                    <template v-if="$vuetify.breakpoint.mdAndUp">
+                        <v-spacer/>
+                        <v-slider hide-details
+                                  :prepend-icon="volumeClass"
+                                  :value="volumes['Music'] || 0"
+                                  @input="$emit('setVolume', {name: 'Music', value: $event})"
+                        />
+                        <v-spacer/>
+                    </template>
+
 
                     <v-btn icon @click="$emit('prevSong')">
                         <v-icon>mdi-rewind</v-icon>
@@ -30,6 +39,15 @@
                     <v-btn icon @click="$emit('nextSong')" class="ml-0" :class="{'mr-3': $vuetify.breakpoint.mdAndUp}">
                         <v-icon>mdi-fast-forward</v-icon>
                     </v-btn>
+                </v-list-item>
+                <v-list-item v-if="!$vuetify.breakpoint.mdAndUp">
+                    <v-spacer/>
+                    <v-slider hide-details
+                              :prepend-icon="volumeClass"
+                              :value="volumes['Music'] || 0"
+                              @input="$emit('setVolume', {name: 'Music', value: $event})"
+                    />
+                    <v-spacer/>
                 </v-list-item>
 
                 <v-divider></v-divider>
@@ -43,7 +61,7 @@
                         <v-list-item-title>Image from {{sourceName}}</v-list-item-title>
                     </v-list-item-content>
 
-                    <v-spacer/>
+                    <v-spacer v-if="$vuetify.breakpoint.mdAndUp"/>
 
                     <v-btn icon @click="$emit('nextGif')">
                         <v-icon>mdi-arrow-left-bold</v-icon>
@@ -70,7 +88,7 @@
                                     <v-slider :hint="sound.name"
                                               persistent-hint
                                               :value="volumes[sound.name] || 0"
-                                              @input="setVolume(sound.name, $event)"
+                                              @input="$emit('setVolume', {name: sound.name, value: $event})"
                                     />
                                 </v-col>
                             </template>
@@ -94,10 +112,30 @@
             volumes: Object,
             musicPlaying: Boolean
         },
-        methods: {
-            setVolume(name, value)
+        computed: {
+            volumeClass()
             {
-                this.$emit('setVolume', {name, value});
+                let volume = this.volumes['Music'];
+                if(volume === null)
+                {
+                    volume = 100;
+                }
+                if(volume > 60)
+                {
+                    return 'mdi mdi-volume-high';
+                }
+                else if(volume > 30)
+                {
+                    return 'mdi mdi-volume-medium'
+                }
+                else if(volume > 0)
+                {
+                    return 'mdi mdi-volume-low'
+                }
+                else
+                {
+                    return 'mdi mdi-volume-mute'
+                }
             }
         }
     };
