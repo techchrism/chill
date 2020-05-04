@@ -63,13 +63,13 @@
 
                     <v-spacer v-if="$vuetify.breakpoint.mdAndUp"/>
 
-                    <v-btn icon @click="$emit('nextGif')">
+                    <v-btn icon @click="$emit('prevGif')">
                         <v-icon>mdi-arrow-left-bold</v-icon>
                     </v-btn>
                     <v-btn icon @click="$emit('randomGif')" :class="{'mx-5': $vuetify.breakpoint.mdAndUp}">
                         <v-icon>mdi-shuffle</v-icon>
                     </v-btn>
-                    <v-btn icon @click="$emit('prevGif')" class="ml-0" :class="{'mr-3': $vuetify.breakpoint.mdAndUp}">
+                    <v-btn icon @click="$emit('nextGif')" class="ml-0" :class="{'mr-3': $vuetify.breakpoint.mdAndUp}">
                         <v-icon>mdi-arrow-right-bold</v-icon>
                     </v-btn>
                 </v-list-item>
@@ -82,6 +82,13 @@
                     </v-list-item-icon>
 
                     <v-list-item-content>
+                        <v-row justify="center">
+                            <v-checkbox hide-details
+                                        label="Use Default"
+                                        class="mt-0"
+                                        :input-value="useDefault"
+                                        @change="$emit('setDefault', $event)"/>
+                        </v-row>
                         <v-row justify="center">
                             <template v-for="sound in sounds">
                                 <v-col cols="4" sm="3">
@@ -110,7 +117,8 @@
             sounds: Array,
             progress: Number,
             volumes: Object,
-            musicPlaying: Boolean
+            musicPlaying: Boolean,
+            useDefault: Boolean
         },
         computed: {
             volumeClass()

@@ -10,8 +10,9 @@
                       :progress="songProgress"
                       :song-name="selectedSong.name"
                       :artist="selectedSong.artist"
-                      :volumes="volumes"
+                      :volumes="useDefault ? defaultVolumes : volumes"
                       :music-playing="musicPlaying"
+                      :use-default="useDefault"
                       @nextGif="nextAnimation"
                       @prevGif="prevAnimation"
                       @randomGif="pickRandomAnimation"
@@ -19,6 +20,7 @@
                       @prevSong="prevSong"
                       @toggleSong="toggleSong"
                       @setVolume="setVolume($event.name, $event.value)"
+                      @setDefault="setUseDefault"
                       ref="controls"
             >
                 <template v-slot:activator="{on}">
@@ -80,7 +82,9 @@
                 selectedAnimation: {},
                 selectedSong: {files:[]},
                 songProgress: 0,
-                autoplayDisabled: false
+                autoplayDisabled: false,
+                useDefault: true,
+                ready: false
             };
         },
         computed: {
@@ -92,10 +96,41 @@
             {
                 return this.selectedSong.files.map((file) => 'music/' + file);
             },
+            defaultVolumes()
+            {
+                return this.selectedAnimation.sounds || {};
+            }
+        },
+        watch: {
+            selectedAnimation()
+            {
+                if(this.useDefault && this.ready)
+                {
+                    for(let sound of sounds)
+                    {
+                        let howler = this.soundsHowler[sound.name];
+                        let volume = (this.defaultVolumes[sound.name] / 100) || 0.0;
+                        howler.volume(volume);
+                        if(volume !== 0 && !howler.playing())
+                        {
+                            howler.play();
+                        }
+                        else if(volume === 0 && howler.playing())
+                        {
+                            howler.pause();
+                        }
+                    }
+                    this.$refs['music'].volume = (this.defaultVolumes['Music'] / 100) || 1.0;
+                }
+            }
         },
         methods: {
             clickHandler(e)
             {
+                if(this.autoplayDisabled)
+                {
+                    return;
+                }
                 if(e.clientX > (window.innerWidth / 2))
                 {
                     this.nextAnimation();
@@ -104,13 +139,32 @@
                 {
                     this.prevAnimation();
                 }
-                e.preventDefault();
-                e.stopPropagation();
             },
             saveVolume: throttle(function()
             {
                 localforage.setItem('volumes', this.volumes);
             }, 1000),
+            setUseDefault(useDefault)
+            {
+                this.useDefault = useDefault;
+                localforage.setItem('useDefault', useDefault);
+
+                for(let sound of sounds)
+                {
+                    let howler = this.soundsHowler[sound.name];
+                    let volume = ((useDefault ? this.defaultVolumes[sound.name] : this.volumes[sound.name]) / 100) || 0.0;
+                    howler.volume(volume);
+                    if(volume !== 0 && !howler.playing())
+                    {
+                        howler.play();
+                    }
+                    else if(volume === 0 && howler.playing())
+                    {
+                        howler.pause();
+                    }
+                }
+                this.$refs['music'].volume = ((useDefault ? this.defaultVolumes['Music'] : this.volumes['Music']) / 100) || 1.0;
+            },
             setVolume(name, volume)
             {
                 if(name !== 'Music')
@@ -292,11 +346,20 @@
             this.pickRandomAnimation();
             this.pickRandomSong();
 
-            localforage.getItems(['volumes', 'musicPlaying']).then(({volumes, musicPlaying}) =>
+            localforage.getItems(['volumes', 'musicPlaying', 'useDefault']).then(({volumes, musicPlaying, useDefault}) =>
             {
                 volumes = volumes || {};
                 this.volumes = volumes;
+                if(musicPlaying === null)
+                {
+                    musicPlaying = true;
+                }
                 this.musicPlaying = musicPlaying;
+                if(useDefault === null)
+                {
+                    useDefault = true;
+                }
+                this.useDefault = useDefault;
 
                 for(let sound of sounds)
                 {
@@ -305,7 +368,7 @@
                         loop: true,
                         autoplay: false,
                         html5: true,
-                        volume: (volumes[sound.name] / 100) || 0.0,
+                        volume: (((useDefault ? this.defaultVolumes[sound.name] : volumes[sound.name]) / 100) || 0.0),
                         onplayerror: () =>
                         {
                             if(!this.autoplayDisabled)
@@ -316,7 +379,7 @@
                         }
                     });
 
-                    if(((volumes[sound.name] / 100) || 0.0) > 0)
+                    if((((useDefault ? this.defaultVolumes[sound.name] : volumes[sound.name]) / 100) || 0.0) > 0)
                     {
                         this.soundsHowler[sound.name].play();
                     }
@@ -337,6 +400,8 @@
                         }
                     });
                 }
+
+                this.ready = true;
             });
 
             document.addEventListener('keydown', this.keydown);
