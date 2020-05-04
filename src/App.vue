@@ -98,7 +98,7 @@
             },
             defaultVolumes()
             {
-                return this.selectedAnimation.sounds || {};
+                return Object.assign({}, this.selectedAnimation.sounds || {});
             }
         },
         watch: {
@@ -106,12 +106,13 @@
             {
                 if(this.useDefault && this.ready)
                 {
+                    this.volumes = this.defaultVolumes;
                     for(let sound of sounds)
                     {
-                        let volume = (this.defaultVolumes[sound.name] / 100) || 0.0;
+                        let volume = (this.volumes[sound.name] / 100) || 0.0;
                         this.setVolumeFor(sound.name, volume);
                     }
-                    this.$refs['music'].volume = (this.defaultVolumes['Music'] / 100) || 1.0;
+                    this.$refs['music'].volume = (this.volumes['Music'] / 100) || 1.0;
                 }
             }
         },
