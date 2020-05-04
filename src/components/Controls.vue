@@ -94,7 +94,7 @@
                                 <v-col cols="4" sm="3">
                                     <v-slider :hint="sound.name"
                                               persistent-hint
-                                              :value="volumes[sound.name] || 0"
+                                              :value="volumes[sound.name]"
                                               @input="$emit('setVolume', {name: sound.name, value: $event})"
                                     />
                                 </v-col>

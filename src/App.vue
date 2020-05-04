@@ -184,8 +184,12 @@
                 {
                     this.$refs['music'].volume = (volume / 100);
                 }
-                this.volumes[name] = volume;
-                this.saveVolume();
+
+                if(!this.useDefault)
+                {
+                    this.volumes[name] = volume;
+                    this.saveVolume();
+                }
             },
             pickRandomAnimation()
             {
