@@ -93,6 +93,17 @@
             },
         },
         methods: {
+            clickHandler(mouseEvent)
+            {
+                if(mouseEvent.clientX > (window.innerWidth / 2))
+                {
+                    this.nextAnimation();
+                }
+                else
+                {
+                    this.prevAnimation();
+                }
+            },
             saveVolume: throttle(function()
             {
                 localforage.setItem('volumes', this.volumes);
@@ -326,6 +337,7 @@
             });
 
             document.addEventListener('keydown', this.keydown);
+            this.$refs['content'].addEventListener('click', this.clickHandler);
         }
     };
 </script>
