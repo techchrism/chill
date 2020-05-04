@@ -122,12 +122,15 @@
                 howler.volume(volume);
                 if(volume !== 0 && !howler.playing())
                 {
-                    if(!(howler.state() === 'loaded'))
+                    if(howler.state() === 'unloaded')
                     {
                         howler.load();
                         howler.once('load', () =>
                         {
-                            howler.play();
+                            if(!howler.playing())
+                            {
+                                howler.play();
+                            }
                         });
                     }
                     else
