@@ -37,6 +37,8 @@ module.exports.animations = [
     {file: '21.gif', source: '1041uuu'},
     {file: '22.gif', source: '1041uuu'},
     {file: '23.gif', source: '1041uuu'},
+    {file: '24.webp', source: '1041uuu'},
+    {file: '25.webp', source: '1041uuu'}
 ];
 
 module.exports.music = [
