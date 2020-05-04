@@ -82,7 +82,7 @@
                     </v-list-item-icon>
 
                     <v-list-item-content>
-                        <v-row>
+                        <v-row justify="center">
                             <template v-for="sound in sounds">
                                 <v-col cols="4" sm="3">
                                     <v-slider :hint="sound.name"

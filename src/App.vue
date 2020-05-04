@@ -36,12 +36,13 @@
             <div ref="content" class="full-container no-select">
                 <animation :source="animationSource" :animation="selectedAnimation"/>
             </div>
-            <audio :src="musicSource"
-                   @ended="pickRandomSong(true)"
+            <audio @ended="pickRandomSong(true)"
                    @timeupdate="timeUpdate"
                    onload="this.play()"
                    ref="music"
-            ></audio>
+            >
+                <source v-for="source of musicSources" :src="source">
+            </audio>
 
             <v-snackbar :value="autoplayDisabled" :timeout="0">
                 AutoPlay is disabled. Click anywhere to enable.
@@ -77,7 +78,7 @@
                 volumes: {},
                 musicPlaying: true,
                 selectedAnimation: {},
-                selectedSong: {},
+                selectedSong: {files:[]},
                 songProgress: 0,
                 autoplayDisabled: false
             };
@@ -87,9 +88,9 @@
             {
                 return 'img/gifs/' + this.selectedAnimation.file;
             },
-            musicSource()
+            musicSources()
             {
-                return 'music/' + this.selectedSong.file;
+                return this.selectedSong.files.map((file) => 'music/' + file);
             },
         },
         methods: {
@@ -300,7 +301,7 @@
                 for(let sound of sounds)
                 {
                     this.soundsHowler[sound.name] = new Howl({
-                        src: 'sound/' + sound.file,
+                        src: sound.files.map((file) => 'sound/' + file),
                         loop: true,
                         autoplay: false,
                         html5: true,

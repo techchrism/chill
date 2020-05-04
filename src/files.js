@@ -1,16 +1,17 @@
 module.exports.sounds = [
-    {name: 'Birds', file: 'birds.webm'},
-    {name: 'Crickets', file: 'crickets.webm'},
-    {name: 'Fire', file: 'fire.webm'},
-    {name: 'Jungle', file: 'jungle.webm'},
-    {name: 'People', file: 'people.webm'},
-    {name: 'Rain', file: 'rain.webm'},
-    {name: 'Seagulls', file: 'seagulls.webm'},
-    {name: 'Swamp', file: 'swamp.webm'},
-    {name: 'Thunder', file: 'thunder.webm'},
-    {name: 'Umbrella Rain', file: 'umbrella-rain.webm'},
-    {name: 'Waves', file: 'waves.webm'},
-    {name: 'Wind', file: 'wind.webm'}
+    {name: 'Birds', files: ['birds.webm']},
+    {name: 'Crickets', files: ['crickets.webm']},
+    {name: 'Fire', files: ['fire.webm']},
+    {name: 'Jungle', files: ['jungle.webm']},
+    {name: 'People', files: ['people.webm']},
+    {name: 'Rain', files: ['rain.webm']},
+    {name: 'Seagulls', files: ['seagulls.webm']},
+    {name: 'Swamp', files: ['swamp.webm']},
+    {name: 'Thunder', files: ['thunder.webm']},
+    {name: 'Umbrella Rain', files: ['umbrella-rain.webm']},
+    {name: 'Waves', files: ['waves.webm']},
+    {name: 'Wind', files: ['wind.webm']},
+    {name: 'Stream', files: ['stream.webm']}
 ];
 
 module.exports.animations = [
@@ -42,14 +43,14 @@ module.exports.animations = [
 ];
 
 module.exports.music = [
-    {name: 'END THEME', artist: 'Tenmon', file: 'end_theme.webm'},
-    {name: 'No More Tears', artist: 'David Nevue', file: 'no_more_tears.webm'},
-    {name: 'To The Sky', artist: 'Dirk Maassen', file: 'to_the_sky.webm'},
-    {name: 'River Flows in You', artist: 'Yiruma', file: 'river_flows_in_you.webm'},
-    {name: 'Kiss the Rain', artist: 'Yiruma', file: 'kiss_the_rain.webm'},
-    {name: 'May Be', artist: 'Yiruma', file: 'may_be.webm'},
-    {name: 'Reminiscent', artist: 'Yiruma', file: 'reminiscent.webm'},
-    {name: 'Loanna', artist: 'Yiruma', file: 'loanna.webm'},
-    {name: 'The Days That\'ll Never Come', artist: 'Yiruma', file: 'the_days_thatll_never_come.webm'},
-    {name: 'I Could See You', artist: 'Yiruma', file: 'i_could_see_you.webm'}
+    {name: 'END THEME', artist: 'Tenmon', files: ['end_theme.webm']},
+    {name: 'No More Tears', artist: 'David Nevue', files: ['no_more_tears.webm']},
+    {name: 'To The Sky', artist: 'Dirk Maassen', files: ['to_the_sky.webm']},
+    {name: 'River Flows in You', artist: 'Yiruma', files: ['river_flows_in_you.webm']},
+    {name: 'Kiss the Rain', artist: 'Yiruma', files: ['kiss_the_rain.webm']},
+    {name: 'May Be', artist: 'Yiruma', files: ['may_be.webm']},
+    {name: 'Reminiscent', artist: 'Yiruma', files: ['reminiscent.webm']},
+    {name: 'Loanna', artist: 'Yiruma', files: ['loanna.webm']},
+    {name: 'The Days That\'ll Never Come', artist: 'Yiruma', files: ['the_days_thatll_never_come.webm']},
+    {name: 'I Could See You', artist: 'Yiruma', files: ['i_could_see_you.webm']}
 ];
