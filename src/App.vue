@@ -10,7 +10,7 @@
                       :progress="songProgress"
                       :song-name="selectedSong.name"
                       :artist="selectedSong.artist"
-                      :volumes="useDefault ? defaultVolumes : volumes"
+                      :volumes="volumes"
                       :music-playing="musicPlaying"
                       :use-default="useDefault"
                       @nextGif="nextAnimation"
@@ -77,6 +77,7 @@
                 music,
                 soundsHowler: {},
                 volumes: {},
+                volumesBackup: {},
                 musicPlaying: true,
                 selectedAnimation: {},
                 selectedSong: {files:[]},
@@ -163,11 +164,20 @@
             {
                 this.useDefault = useDefault;
                 localforage.setItem('useDefault', useDefault);
+                if(useDefault)
+                {
+                    this.volumesBackup = this.volumes;
+                    this.volumes = this.defaultVolumes;
+                }
+                else
+                {
+                    this.volumes = this.volumesBackup;
+                }
 
                 for(let sound of sounds)
                 {
                     let howler = this.soundsHowler[sound.name];
-                    let volume = ((useDefault ? this.defaultVolumes[sound.name] : this.volumes[sound.name]) / 100) || 0.0;
+                    let volume =  (this.volumes[sound.name] / 100) || 0.0;
                     howler.volume(volume);
                     if(volume !== 0 && !howler.playing())
                     {
@@ -178,10 +188,11 @@
                         howler.pause();
                     }
                 }
-                this.$refs['music'].volume = ((useDefault ? this.defaultVolumes['Music'] : this.volumes['Music']) / 100) || 1.0;
+                this.$refs['music'].volume = (this.volumes['Music'] / 100) || 0.0;
             },
             setVolume(name, volume)
             {
+                console.log('Setting volume');
                 if(name !== 'Music')
                 {
                     this.setVolumeFor(name, volume / 100);
@@ -190,10 +201,10 @@
                 {
                     this.$refs['music'].volume = (volume / 100);
                 }
+                this.volumes[name] = volume;
 
                 if(!this.useDefault)
                 {
-                    this.volumes[name] = volume;
                     this.saveVolume();
                 }
             },
@@ -373,10 +384,15 @@
                     useDefault = true;
                 }
                 this.useDefault = useDefault;
+                if(useDefault)
+                {
+                    this.volumesBackup = this.volumes;
+                    this.volumes = this.defaultVolumes;
+                }
 
                 for(let sound of sounds)
                 {
-                    let volume = (((useDefault ? this.defaultVolumes[sound.name] : volumes[sound.name]) / 100) || 0.0);
+                    let volume = (this.volumes[sound.name] / 100) || 0.0;
                     this.soundsHowler[sound.name] = new Howl({
                         src: sound.files.map((file) => 'sound/' + file),
                         loop: true,
@@ -404,7 +420,7 @@
                     }
                 }
 
-                this.$refs['music'].volume = (volumes['Music'] / 100) || 1.0;
+                this.$refs['music'].volume = (this.volumes['Music'] / 100) || 1.0;
                 if(musicPlaying)
                 {
                     this.$refs['music'].play().then(() =>
