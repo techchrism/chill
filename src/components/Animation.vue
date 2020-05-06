@@ -1,6 +1,12 @@
 <template>
     <div class="full-container primary">
-        <v-img class="full-container" :src="source" alt="Animation" ref="img" @load="onLoad" contain/>
+        <v-img class="full-container"
+               :src="source"
+               alt="Animation"
+               ref="img"
+               @load="onLoad"
+               contain
+        />
     </div>
 </template>
 
@@ -24,25 +30,22 @@
         },
         data()
         {
-            return {
-                imageClass: {}
-            }
+            return {}
         },
         watch: {
             animation()
-            {
-
-            }
-        },
-        methods: {
-            onLoad()
             {
                 if(this.animation.hasOwnProperty('color'))
                 {
                     this.$vuetify.theme.dark = (this.animation.theme === 'dark');
                     this.$vuetify.theme.themes[this.animation.theme].primary = this.animation.color;
                 }
-                else
+            }
+        },
+        methods: {
+            onLoad()
+            {
+                if(!this.animation.hasOwnProperty('color'))
                 {
                     const {r, g, b} = this.getAverageColor();
                     const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
@@ -101,6 +104,14 @@
                 rgb.b = ~~(rgb.b/count);
 
                 return rgb;
+            }
+        },
+        mounted()
+        {
+            if(this.animation.hasOwnProperty('color'))
+            {
+                this.$vuetify.theme.dark = (this.animation.theme === 'dark');
+                this.$vuetify.theme.themes[this.animation.theme].primary = this.animation.color;
             }
         }
     };

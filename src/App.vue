@@ -358,11 +358,13 @@
                 e.preventDefault();
             }
         },
-        mounted()
+        created()
         {
             this.pickRandomAnimation();
             this.pickRandomSong();
-
+        },
+        mounted()
+        {
             localforage.getItems(['volumes', 'musicPlaying', 'useDefault']).then(({volumes, musicPlaying, useDefault}) =>
             {
                 volumes = volumes || {};
@@ -414,7 +416,7 @@
                 }
 
                 this.$refs['music'].volume = (this.volumes['Music'] / 100) || 1.0;
-                if(musicPlaying)
+                if(this.musicPlaying)
                 {
                     this.$refs['music'].play().then(() =>
                     {

@@ -1,5 +1,5 @@
 workbox.core.setCacheNameDetails({prefix: 'd4'});
-const LATEST_VERSION = '0.1.3';
+const LATEST_VERSION = '0.1.4';
 self.addEventListener('activate', (event) =>
 {
     console.log(`%c ${LATEST_VERSION} `, 'background: #ddd; color: #0000ff');
