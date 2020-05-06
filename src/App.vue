@@ -186,7 +186,6 @@
             },
             setVolume(name, volume)
             {
-                console.log('Setting volume');
                 if(name !== 'Music')
                 {
                     this.setVolumeFor(name, volume / 100);
@@ -455,6 +454,7 @@
 
     .full-container
     {
+        position: absolute;
         height: 100%;
         width: 100%;
     }

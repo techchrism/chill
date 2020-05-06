@@ -1,8 +1,7 @@
 <template>
     <div class="full-container primary">
-        <img :src="source" :class="imageClass" alt="Animation" @load="onLoad" ref="img"/>
+        <v-img class="full-container" :src="source" alt="Animation" ref="img" @load="onLoad" contain/>
     </div>
-
 </template>
 
 <script>
@@ -38,8 +37,6 @@
         methods: {
             onLoad()
             {
-                this.computeSize();
-
                 if(this.animation.hasOwnProperty('color'))
                 {
                     this.$vuetify.theme.dark = (this.animation.theme === 'dark');
@@ -104,62 +101,11 @@
                 rgb.b = ~~(rgb.b/count);
 
                 return rgb;
-            },
-            computeSize()
-            {
-                const w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-                const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-                const img = this.$refs['img'];
-
-                if(img.naturalWidth - h < img.naturalHeight - w)
-                {
-                    this.imageClass = {
-                        'animation-image': true,
-                        'fullwidth': true
-                    };
-                }
-                else
-                {
-                    this.imageClass = {
-                        'animation-image': true,
-                        'fullheight': true
-                    };
-                }
             }
-        },
-        created()
-        {
-            window.addEventListener('resize', this.computeSize);
-        },
-        destroyed()
-        {
-            window.removeEventListener('resize', this.computeSize);
         }
     };
 </script>
 
 <style scoped>
-    .animation-image
-    {
-        max-height: 100%;
-        max-width: 100%;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: auto;
-    }
 
-    .fullwidth
-    {
-        width: 100%;
-        height: auto;
-    }
-
-    .fullheight
-    {
-        width: auto;
-        height: 100%;
-    }
 </style>
