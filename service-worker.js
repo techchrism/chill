@@ -1,4 +1,4 @@
-importScripts("/chill/precache-manifest.559cecf236bf22bf6b4d903dafb624a9.js", "https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
+importScripts("precache-manifest.d97b3b66f746f1c14052d90a530ee6d4.js", "https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 workbox.core.setCacheNameDetails({prefix: 'd4'});
 const LATEST_VERSION = '0.1.4';
