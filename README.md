@@ -1,5 +1,7 @@
+![Screenshot](https://i.imgur.com/hHR06Vf.png)
 # Chill
-A simple website made to relax
+A website made to relax.
+Features animations, automatic sound effects (that can optionally be adjusted), and music
 
 ## Project setup
 ```
