@@ -17,6 +17,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run build --if-present
+    - run: echo ${{secrets.CNAME}} > ./dist/CNAME
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
